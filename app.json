@@ -1,29 +1,33 @@
 {
   "expo": {
-    "name": "StudyFocusApp",
-    "slug": "StudyFocusApp",
+    "name": "StudyFocus",
+    "slug": "study-focus-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "userInterfaceStyle": "automatic",
+    "scheme": "studyfocus",
+    "platforms": ["ios", "android"],
+    "plugins": [
+      "expo-router",
+      "expo-camera",
+      "expo-sensors"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses camera to scan documents and analyze lighting conditions for optimal study environment.",
+        "NSMotionUsageDescription": "This app uses motion sensors to detect movement during study sessions for better focus tracking."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4285f4"
       },
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     }
   }
 }
