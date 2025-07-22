@@ -429,7 +429,7 @@ export default function EnvironmentScreen() {
             <Camera
               ref={cameraRef}
               style={{ flex: 1 }}
-              type={Camera.Constants.Type.back}
+              facing="back"
             />
           )}
           

@@ -1,6 +1,7 @@
 // src/components/SessionControls.js
 import React, { useState } from 'react';
-import { View, Text, Pressable, Alert, Modal, TextInput, Slider } from 'react-native';
+import { View, Text, Pressable, Alert, Modal, TextInput } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useStudy, SESSION_STATES } from '../context/StudyContext';

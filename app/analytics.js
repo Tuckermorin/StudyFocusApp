@@ -329,7 +329,7 @@ export default function AnalyticsScreen() {
               subtitle={`This ${timeRange}`}
               height={200}
               showLegend={true}
-              colors={subjects.map(s => s.color)}
+              colors={subjects?.map(s => s.color) || []}
             />
           </View>
         )}
