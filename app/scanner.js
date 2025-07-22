@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Camera } from 'expo-camera';
+import { CameraView, Camera } from 'expo-camera';
 import * as DocumentPicker from 'expo-document-picker';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
@@ -565,10 +565,10 @@ export default function ScannerScreen() {
       >
         <View style={{ flex: 1, backgroundColor: '#000' }}>
           {cameraPermission && (
-            <Camera
+            <CameraView
               ref={cameraRef}
               style={{ flex: 1 }}
-              type={Camera.Constants.Type.back}
+              facing="back"
             />
           )}
           
