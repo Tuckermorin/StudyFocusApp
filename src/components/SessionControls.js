@@ -8,7 +8,7 @@ import { useStudy, SESSION_STATES } from '../context/StudyContext';
 export default function SessionControls({
   style = {},
   layout = 'horizontal', // 'horizontal' | 'vertical' | 'compact'
-  showSettings = true,
+  showSettingsButton = true,  // Changed from showSettings to showSettingsButton
   showReset = true,
   onSessionEnd = null,
 }) {
@@ -325,7 +325,7 @@ export default function SessionControls({
         )}
 
         {/* Settings Button */}
-        {showSettings && (
+        {showSettingsButton && (
           <Pressable
             onPress={() => setShowSettings(true)}
             style={({ pressed }) => [

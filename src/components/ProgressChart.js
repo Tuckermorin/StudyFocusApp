@@ -1,7 +1,7 @@
 // src/components/ProgressChart.js
 import React from 'react';
 import { View, Text, Dimensions } from 'react-native';
-import { LineChart, BarChart, PieChart } from 'recharts';
+import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { useTheme } from '../context/ThemeContext';
 
 const { width: screenWidth } = Dimensions.get('window');

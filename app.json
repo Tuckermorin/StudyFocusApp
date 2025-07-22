@@ -14,6 +14,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.studyfocus",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses camera to scan documents and analyze lighting conditions for optimal study environment.",
         "NSMotionUsageDescription": "This app uses motion sensors to detect movement during study sessions for better focus tracking."

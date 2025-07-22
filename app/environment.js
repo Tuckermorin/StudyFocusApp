@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Camera } from 'expo-camera';
+import { CameraView, Camera } from 'expo-camera';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
 import EnvironmentCard from '../src/components/EnvironmentCard';
