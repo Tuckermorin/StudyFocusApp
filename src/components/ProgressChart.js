@@ -62,7 +62,8 @@ export default function ProgressChart({
 
   // Format data for different chart types
   const formatDataForChart = () => {
-    if (!data || data.length === 0) return [];
+    // Ensure data is an array and not empty
+    if (!Array.isArray(data) || data.length === 0) return [];
 
     switch (type) {
       case 'pie':
@@ -81,9 +82,28 @@ export default function ProgressChart({
 
   const formattedData = formatDataForChart();
 
+  // For line and bar charts, ensure we have the correct data structure
+  const getLineBarData = () => {
+    if (!Array.isArray(formattedData) || formattedData.length === 0) {
+      return {
+        labels: ['No Data'],
+        datasets: [{
+          data: [0]
+        }]
+      };
+    }
+
+    return {
+      labels: formattedData.map(item => item.name || 'Unknown'),
+      datasets: [{
+        data: formattedData.map(item => item.value || 0)
+      }]
+    };
+  };
+
   // Render different chart types
   const renderChart = () => {
-    if (!formattedData || formattedData.length === 0) {
+    if (!Array.isArray(formattedData) || formattedData.length === 0) {
       return (
         <View style={{
           height,
@@ -101,9 +121,10 @@ export default function ProgressChart({
 
     switch (type) {
       case 'line':
+        const lineData = getLineBarData();
         return (
           <LineChart
-            data={formattedData}
+            data={lineData}
             width={width}
             height={height}
             yAxisLabel=""
@@ -126,9 +147,10 @@ export default function ProgressChart({
         );
 
       case 'bar':
+        const barData = getLineBarData();
         return (
           <BarChart
-            data={formattedData}
+            data={barData}
             width={width}
             height={height}
             yAxisLabel=""
@@ -216,7 +238,7 @@ export default function ProgressChart({
 
   // Custom legend for pie/donut charts
   const renderCustomLegend = () => {
-    if (!showLegend || (type !== 'pie' && type !== 'donut')) return null;
+    if (!showLegend || (type !== 'pie' && type !== 'donut') || !Array.isArray(formattedData) || formattedData.length === 0) return null;
 
     return (
       <View style={{
@@ -296,7 +318,7 @@ export default function ProgressChart({
       </View>
 
       {/* Data Summary for Line/Bar Charts */}
-      {(type === 'line' || type === 'bar') && formattedData.length > 0 && (
+      {(type === 'line' || type === 'bar') && Array.isArray(formattedData) && formattedData.length > 0 && (
         <View style={{
           flexDirection: 'row',
           justifyContent: 'space-around',

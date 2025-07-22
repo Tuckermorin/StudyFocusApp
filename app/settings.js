@@ -230,7 +230,7 @@ export default function SettingsScreen() {
           <SettingRow
             title="Daily Study Goal"
             subtitle={formatTime(dailyGoal)}
-            icon="target"
+            icon="radio-button-on"
             onPress={() => setShowGoalModal(true)}
           />
 

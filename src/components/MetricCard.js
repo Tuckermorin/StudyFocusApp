@@ -23,6 +23,14 @@ export default function MetricCard({
 }) {
   const { theme, globalStyles } = useTheme();
 
+  // Fix invalid icon names
+  const getValidIcon = (iconName) => {
+    if (iconName === 'target') {
+      return 'radio-button-on'; // Replace invalid 'target' with valid icon
+    }
+    return iconName;
+  };
+
   // Get trend color
   const getTrendColor = (trendDirection) => {
     switch (trendDirection) {
@@ -171,6 +179,7 @@ export default function MetricCard({
   };
 
   const styles = getStyles();
+  const validIcon = getValidIcon(icon);
 
   return (
     <Pressable
@@ -187,10 +196,10 @@ export default function MetricCard({
     >
       {/* Header with Icon and Title */}
       <View style={styles.header}>
-        {icon && (
+        {validIcon && (
           <View style={styles.iconContainer}>
             <Ionicons 
-              name={icon} 
+              name={validIcon} 
               size={size === 'large' ? 20 : size === 'medium' ? 18 : 16} 
               color={color || theme.colors.primary}
             />

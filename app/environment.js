@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { CameraView, Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
 import EnvironmentCard from '../src/components/EnvironmentCard';
@@ -23,7 +23,7 @@ import SensorService from '../src/services/sensorService';
 export default function EnvironmentScreen() {
   const { theme, globalStyles } = useTheme();
   const { environment, updateEnvironment } = useStudy();
-  const [cameraPermission, setCameraPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [environmentHistory, setEnvironmentHistory] = useState([]);
@@ -34,7 +34,6 @@ export default function EnvironmentScreen() {
 
   useEffect(() => {
     loadEnvironmentData();
-    checkCameraPermissions();
   }, []);
 
   const loadEnvironmentData = () => {
@@ -51,19 +50,14 @@ export default function EnvironmentScreen() {
     setTrends(trendData);
   };
 
-  const checkCameraPermissions = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setCameraPermission(status === 'granted');
-  };
-
   const handleTakePhoto = async () => {
-    if (!cameraPermission) {
+    if (!permission?.granted) {
       Alert.alert(
         'Camera Permission Required',
         'Please allow camera access to analyze your study environment.',
         [
           { text: 'Cancel' },
-          { text: 'Allow', onPress: checkCameraPermissions },
+          { text: 'Allow', onPress: requestPermission },
         ]
       );
       return;
@@ -425,8 +419,8 @@ export default function EnvironmentScreen() {
         onRequestClose={() => setShowCamera(false)}
       >
         <View style={{ flex: 1, backgroundColor: '#000' }}>
-          {cameraPermission && (
-            <Camera
+          {permission?.granted && (
+            <CameraView
               ref={cameraRef}
               style={{ flex: 1 }}
               facing="back"

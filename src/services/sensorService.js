@@ -8,6 +8,7 @@ class SensorService {
     this.isLightSensorAvailable = false;
     this.isAccelerometerAvailable = false;
     this.listeners = new Set();
+    this.hasLoggedLightSensorWarning = false; // Prevent spam
     
     // Current sensor data
     this.currentData = {
@@ -43,7 +44,11 @@ class SensorService {
       this.isLightSensorAvailable = isAvailable;
       
       if (!isAvailable) {
-        console.warn('Light sensor not available on this device');
+        // Only log once to reduce console spam
+        if (!this.hasLoggedLightSensorWarning) {
+          console.info('Light sensor not available on this device - using simulated data');
+          this.hasLoggedLightSensorWarning = true;
+        }
         // Simulate light sensor for testing/demo purposes
         this.simulateLightSensor();
         return;
@@ -170,12 +175,17 @@ class SensorService {
 
   // Simulate light sensor for devices without it
   simulateLightSensor() {
+    // Don't start multiple simulation timers
+    if (this.lightSimulationInterval) {
+      return;
+    }
+
     // Simulate varying light conditions
     const simulateLight = () => {
-      // Random light level between 30-90% (simulating indoor conditions)
-      const baseLight = 60;
-      const variation = (Math.random() - 0.5) * 30;
-      const lightLevel = Math.max(20, Math.min(95, baseLight + variation));
+      // Random light level between 40-85% (simulating good indoor conditions)
+      const baseLight = 65;
+      const variation = (Math.random() - 0.5) * 20;
+      const lightLevel = Math.max(30, Math.min(90, baseLight + variation));
       
       this.currentData.lightLevel = Math.round(lightLevel);
       this.currentData.lastUpdated = Date.now();
@@ -183,8 +193,8 @@ class SensorService {
       this.notifyListeners();
     };
     
-    // Update every 3 seconds
-    this.lightSimulationInterval = setInterval(simulateLight, 3000);
+    // Update every 5 seconds (less frequent than real sensor)
+    this.lightSimulationInterval = setInterval(simulateLight, 5000);
     simulateLight(); // Initial reading
   }
 
@@ -238,6 +248,7 @@ class SensorService {
       lightSensor: this.isLightSensorAvailable,
       accelerometer: this.isAccelerometerAvailable,
       isMonitoring: this.lightSubscription !== null || this.accelerometerSubscription !== null,
+      usingSimulatedLight: !this.isLightSensorAvailable,
     };
   }
 
@@ -254,6 +265,7 @@ class SensorService {
   cleanup() {
     this.stopMonitoring();
     this.listeners.clear();
+    this.hasLoggedLightSensorWarning = false;
   }
 }
 

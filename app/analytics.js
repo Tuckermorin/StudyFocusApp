@@ -50,8 +50,8 @@ export default function AnalyticsScreen() {
       
       setDailyStats(daily);
       setWeeklyStats(weekly);
-      setAllSessions(sessions);
-      setSubjects(allSubjects);
+      setAllSessions(sessions || []);
+      setSubjects(allSubjects || []);
     } catch (error) {
       console.error('Error loading analytics data:', error);
       Alert.alert('Error', 'Failed to load analytics data');
@@ -79,11 +79,11 @@ export default function AnalyticsScreen() {
 
   // Prepare chart data based on selected time range
   const getChartData = () => {
-    if (timeRange === 'week' && weeklyStats) {
-      return Object.entries(weeklyStats.dailyBreakdown || {}).map(([date, data]) => ({
+    if (timeRange === 'week' && weeklyStats?.dailyBreakdown) {
+      return Object.entries(weeklyStats.dailyBreakdown).map(([date, data]) => ({
         name: formatDate(date),
-        value: Math.round(data.time / 60), // Convert to minutes
-        sessions: data.sessions,
+        value: Math.round((data?.time || 0) / 60), // Convert to minutes
+        sessions: data?.sessions || 0,
       }));
     } else if (timeRange === 'day') {
       // Show hourly breakdown for today
@@ -99,14 +99,14 @@ export default function AnalyticsScreen() {
         if (!hourlyData[hour]) {
           hourlyData[hour] = { time: 0, sessions: 0 };
         }
-        hourlyData[hour].time += session.duration;
+        hourlyData[hour].time += session.duration || 0;
         hourlyData[hour].sessions += 1;
       });
 
       return Object.entries(hourlyData).map(([hour, data]) => ({
         name: `${hour}:00`,
-        value: Math.round(data.time / 60),
-        sessions: data.sessions,
+        value: Math.round((data?.time || 0) / 60),
+        sessions: data?.sessions || 0,
       }));
     }
     return [];
@@ -115,18 +115,18 @@ export default function AnalyticsScreen() {
   // Get subject breakdown data for pie chart
   const getSubjectChartData = () => {
     const stats = timeRange === 'week' ? weeklyStats : dailyStats;
-    if (!stats || !stats.subjectBreakdown) return [];
+    if (!stats?.subjectBreakdown) return [];
 
     return Object.entries(stats.subjectBreakdown).map(([subject, data]) => ({
       name: subject,
-      value: Math.round(data.time / 60), // Convert to minutes
-      sessions: data.sessions,
+      value: Math.round((data?.time || 0) / 60), // Convert to minutes
+      sessions: data?.sessions || 0,
     }));
   };
 
   // Calculate productivity metrics
   const getProductivityMetrics = () => {
-    const completedSessions = allSessions.filter(s => s.completed);
+    const completedSessions = allSessions.filter(s => s?.completed);
     
     if (completedSessions.length === 0) {
       return {
@@ -138,12 +138,12 @@ export default function AnalyticsScreen() {
       };
     }
 
-    const totalTime = completedSessions.reduce((sum, s) => sum + s.duration, 0);
+    const totalTime = completedSessions.reduce((sum, s) => sum + (s?.duration || 0), 0);
     const averageLength = totalTime / completedSessions.length;
     
     // Calculate average focus score
     const focusScores = completedSessions
-      .filter(s => s.productivity && s.productivity.focusScore)
+      .filter(s => s?.productivity?.focusScore)
       .map(s => s.productivity.focusScore);
     const avgFocusScore = focusScores.length > 0 
       ? focusScores.reduce((sum, score) => sum + score, 0) / focusScores.length 
@@ -151,7 +151,7 @@ export default function AnalyticsScreen() {
 
     // Calculate average environment score
     const envScores = completedSessions
-      .filter(s => s.environment && s.environment.environmentScore)
+      .filter(s => s?.environment?.environmentScore)
       .map(s => s.environment.environmentScore);
     const avgEnvScore = envScores.length > 0
       ? envScores.reduce((sum, score) => sum + score, 0) / envScores.length
@@ -164,12 +164,12 @@ export default function AnalyticsScreen() {
       if (!hourlyProductivity[hour]) {
         hourlyProductivity[hour] = { time: 0, sessions: 0 };
       }
-      hourlyProductivity[hour].time += session.duration;
+      hourlyProductivity[hour].time += session.duration || 0;
       hourlyProductivity[hour].sessions += 1;
     });
 
     const mostProductiveHour = Object.entries(hourlyProductivity)
-      .sort(([,a], [,b]) => b.time - a.time)[0]?.[0];
+      .sort(([,a], [,b]) => (b?.time || 0) - (a?.time || 0))[0]?.[0];
 
     return {
       averageSessionLength: averageLength,
@@ -295,11 +295,11 @@ export default function AnalyticsScreen() {
             
             <MetricCard
               title="Weekly Goal"
-              value={weeklyStats ? `${Math.round((weeklyStats.totalStudyTime / weeklyStats.goals.weeklyTimeGoal) * 100)}%` : '0%'}
+              value={weeklyStats ? `${Math.round(((weeklyStats.totalStudyTime || 0) / (weeklyStats.goals?.weeklyTimeGoal || 1)) * 100)}%` : '0%'}
               icon="trophy"
               color={theme.colors.info}
               style={{ flex: 1 }}
-              subtitle={weeklyStats ? formatTime(weeklyStats.totalStudyTime) : '0m'}
+              subtitle={weeklyStats ? formatTime(weeklyStats.totalStudyTime || 0) : '0m'}
             />
           </View>
         </View>
@@ -329,7 +329,7 @@ export default function AnalyticsScreen() {
               subtitle={`This ${timeRange}`}
               height={200}
               showLegend={true}
-              colors={subjects?.map(s => s.color) || []}
+              colors={subjects?.map(s => s?.color).filter(Boolean) || []}
             />
           </View>
         )}
@@ -357,7 +357,7 @@ export default function AnalyticsScreen() {
             <MetricCard
               title="Focus Score"
               value={productivityMetrics.focusScore ? `${productivityMetrics.focusScore.toFixed(1)}/10` : '--'}
-              icon="target"
+              icon="radio-button-on"
               color={theme.colors.focus}
               style={{ flex: 1 }}
               size="small"
@@ -396,21 +396,21 @@ export default function AnalyticsScreen() {
             </Text>
             
             {subjects.map((subject) => (
-              <View key={subject.id} style={[globalStyles.card, { marginBottom: 12 }]}>
+              <View key={subject?.id || Math.random()} style={[globalStyles.card, { marginBottom: 12 }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <View
                     style={{
                       width: 16,
                       height: 16,
                       borderRadius: 8,
-                      backgroundColor: subject.color,
+                      backgroundColor: subject?.color || theme.colors.primary,
                       marginRight: 12,
                     }}
                   />
                   <Text style={[globalStyles.text, { fontWeight: '600', flex: 1 }]}>
-                    {subject.name}
+                    {subject?.name || 'Unknown Subject'}
                   </Text>
-                  {subject.averageFocusScore && (
+                  {subject?.averageFocusScore && (
                     <Text style={[globalStyles.textSecondary]}>
                       ⭐ {subject.averageFocusScore}/10
                     </Text>
@@ -419,10 +419,10 @@ export default function AnalyticsScreen() {
                 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={globalStyles.textSecondary}>
-                    {formatTime(subject.totalStudyTime)} total
+                    {formatTime(subject?.totalStudyTime || 0)} total
                   </Text>
                   <Text style={globalStyles.textSecondary}>
-                    {subject.sessionsCount} sessions
+                    {subject?.sessionsCount || 0} sessions
                   </Text>
                 </View>
               </View>
