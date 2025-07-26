@@ -22,8 +22,6 @@ export default function DashboardScreen() {
     dailyGoal,
     dailyProgressPercentage,
     currentSubject,
-    isSessionActive,
-    startSession,
   } = useStudy();
   const router = useRouter();
 
@@ -60,18 +58,6 @@ export default function DashboardScreen() {
   };
 
   const handleStartSession = () => {
-    if (isSessionActive) {
-      Alert.alert(
-        'Session Active',
-        'You already have an active study session. Would you like to go to it?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Go to Session', onPress: () => router.push('/session') },
-        ]
-      );
-      return;
-    }
-
     if (!currentSubject) {
       Alert.alert(
         'Select Subject',
@@ -83,7 +69,6 @@ export default function DashboardScreen() {
       return;
     }
 
-    startSession(currentSubject);
     router.push('/session');
   };
 
@@ -146,7 +131,7 @@ export default function DashboardScreen() {
                 fontWeight: '600',
               }}
             >
-              {isSessionActive ? "Go to Active Session" : "Start Study Session"}
+              Start Study Session
             </Text>
           </Pressable>
         </View>
