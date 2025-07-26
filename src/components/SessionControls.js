@@ -4,33 +4,38 @@ import { View, Text, Pressable, Alert, Modal, TextInput } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
-import { useStudy, SESSION_STATES } from '../context/StudyContext';
+
+export const SESSION_STATES = {
+  IDLE: 'idle',
+  ACTIVE: 'active',
+  PAUSED: 'paused',
+  BREAK: 'break',
+  COMPLETED: 'completed',
+};
 
 export default function SessionControls({
+  sessionState,
+  isSessionActive,
+  isSessionPaused,
+  isOnBreak,
+  currentSubject,
+  sessionDuration,
+  breakDuration,
+  onStartSession,
+  onPauseSession,
+  onResumeSession,
+  onEndSession,
+  onStartBreak,
+  onEndBreak,
+  onResetSession,
+  savePreferences,
   style = {},
   layout = 'horizontal', // 'horizontal' | 'vertical' | 'compact'
-  showSettingsButton = true,  // Changed from showSettings to showSettingsButton
+  showSettingsButton = true,
   showReset = true,
   onSessionEnd = null,
 }) {
   const { theme, globalStyles } = useTheme();
-  const {
-    sessionState,
-    isSessionActive,
-    isSessionPaused,
-    isOnBreak,
-    currentSubject,
-    sessionDuration,
-    breakDuration,
-    startSession,
-    pauseSession,
-    resumeSession,
-    endSession,
-    startBreak,
-    endBreak,
-    resetSession,
-    savePreferences,
-  } = useStudy();
 
   const [showSettings, setShowSettings] = useState(false);
   const [tempSessionLength, setTempSessionLength] = useState(Math.floor(sessionDuration / 60));
@@ -51,13 +56,13 @@ export default function SessionControls({
     }
 
     if (isSessionActive) {
-      pauseSession();
+      onPauseSession();
     } else if (isSessionPaused) {
-      resumeSession();
+      onResumeSession();
     } else if (isOnBreak) {
-      endBreak();
+      onEndBreak();
     } else {
-      startSession(currentSubject);
+      onStartSession(currentSubject);
     }
   };
 
@@ -66,7 +71,7 @@ export default function SessionControls({
     if (isSessionActive || isSessionPaused) {
       setShowEndSessionModal(true);
     } else {
-      endSession();
+      onEndSession();
       if (onSessionEnd) {
         onSessionEnd();
       }
@@ -77,7 +82,7 @@ export default function SessionControls({
   const confirmEndSession = () => {
     // Here you could save the focus score and notes to the session
     // For now, we'll just end the session
-    endSession();
+    onEndSession();
     setShowEndSessionModal(false);
     setFocusScore(5);
     setSessionNotes('');
@@ -117,13 +122,13 @@ export default function SessionControls({
             text: 'Reset',
             style: 'destructive',
             onPress: () => {
-              resetSession();
+              onResetSession();
             },
           },
         ]
       );
     } else {
-      resetSession();
+      onResetSession();
     }
   };
 
@@ -306,7 +311,7 @@ export default function SessionControls({
         {/* Start Break Button (if session active) */}
         {isSessionActive && (
           <Pressable
-            onPress={startBreak}
+            onPress={onStartBreak}
             style={({ pressed }) => [
               globalStyles.buttonSecondary,
               { flex: 1 },
