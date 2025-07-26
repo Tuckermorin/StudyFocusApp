@@ -163,44 +163,71 @@ export const createGlobalStyles = (theme) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.divider,
   },
-  
-  // Button styles
-  button: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.sm,
-    minHeight: 48, // Material Design minimum touch target
-  },
-  
-  buttonSecondary: {
-    backgroundColor: theme.colors.surface,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-  },
-  
-  buttonDisabled: {
-    backgroundColor: theme.colors.border,
-    ...shadows.none,
-  },
-  
-  buttonText: {
-    color: '#ffffff',
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
-    letterSpacing: typography.letterSpacing.wide,
-  },
-  
-  buttonTextSecondary: {
-    color: theme.colors.primary,
-  },
-  
-  buttonTextDisabled: {
-    color: theme.colors.textTertiary,
-  },
+
+// Button styles
+button: {
+  backgroundColor: theme.colors.primary,
+  paddingVertical: spacing.md,
+  paddingHorizontal: spacing.lg,
+  borderRadius: borderRadius.md,
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'row', // Ensure horizontal layout for icon + text
+  ...shadows.sm,
+  minHeight: 48, // Material Design minimum touch target
+},
+
+buttonSecondary: {
+  backgroundColor: theme.colors.surface,
+  borderWidth: 2,
+  borderColor: theme.colors.primary,
+  paddingVertical: spacing.md,
+  paddingHorizontal: spacing.lg,
+  borderRadius: borderRadius.md,
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'row',
+  minHeight: 48,
+},
+
+buttonDisabled: {
+  backgroundColor: theme.colors.border,
+  paddingVertical: spacing.md,
+  paddingHorizontal: spacing.lg,
+  borderRadius: borderRadius.md,
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'row',
+  minHeight: 48,
+  ...shadows.none,
+},
+
+buttonText: {
+  color: '#ffffff',
+  fontSize: typography.fontSize.md,
+  fontWeight: typography.fontWeight.semibold,
+  letterSpacing: typography.letterSpacing.wide,
+  textAlign: 'center',
+  lineHeight: typography.fontSize.md * 1.2, // Proper line height for centering
+},
+
+buttonTextSecondary: {
+  color: theme.colors.primary,
+  fontSize: typography.fontSize.md,
+  fontWeight: typography.fontWeight.semibold,
+  letterSpacing: typography.letterSpacing.wide,
+  textAlign: 'center',
+  lineHeight: typography.fontSize.md * 1.2,
+},
+
+buttonTextDisabled: {
+  color: theme.colors.textTertiary,
+  fontSize: typography.fontSize.md,
+  fontWeight: typography.fontWeight.semibold,
+  letterSpacing: typography.letterSpacing.wide,
+  textAlign: 'center',
+  lineHeight: typography.fontSize.md * 1.2,
+},
   
   // Input styles
   input: {

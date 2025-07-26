@@ -108,6 +108,49 @@ export default function DashboardScreen() {
           </Text>
         </View>
 
+        {/* Quick Action FAB */}
+        <View style={{ alignItems: 'center', marginBottom: 24 }}>
+          <Pressable
+            onPress={handleStartSession}
+            style={({ pressed }) => [
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: theme.colors.focus,
+                borderRadius: 28,
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+                opacity: pressed ? 0.8 : 1,
+                transform: pressed ? [{ scale: 0.95 }] : [{ scale: 1 }],
+              },
+            ]}
+          >
+            <Ionicons
+              name="play"
+              size={24}
+              color="#FFFFFF"
+              style={{ marginRight: 10 }}
+            />
+            <Text
+              style={{
+                color: '#FFFFFF',
+                fontSize: 16,
+                fontWeight: '600',
+              }}
+            >
+              {isSessionActive ? "Go to Active Session" : "Start Study Session"}
+            </Text>
+          </Pressable>
+        </View>
+
         {/* Current Environment Status */}
         <View style={[globalStyles.card, { marginBottom: 16 }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
@@ -245,22 +288,6 @@ export default function DashboardScreen() {
 
         {/* Action Buttons */}
         <View style={{ gap: 12 }}>
-          <Pressable
-            onPress={handleStartSession}
-            style={({ pressed }) => [
-              globalStyles.button,
-              { backgroundColor: theme.colors.focus },
-              pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-            ]}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="play" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={globalStyles.buttonText}>
-                {isSessionActive ? 'Go to Active Session' : 'Start Study Session'}
-              </Text>
-            </View>
-          </Pressable>
-
           <Pressable
             onPress={handleQuickEnvironmentCheck}
             style={({ pressed }) => [

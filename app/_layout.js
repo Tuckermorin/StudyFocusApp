@@ -6,91 +6,30 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../src/context/ThemeContext';
 import { StudyProvider } from '../src/context/StudyContext';
 
+// Replace the entire RootLayoutNav function in app/_layout.js
+
 function RootLayoutNav() {
   const { theme } = useTheme();
   const router = useRouter();
 
-  const SettingsButton = () => (
+  // Simplified button component with better spacing
+  const HeaderButton = ({ iconName, onPress, testID }) => (
     <Pressable
-      onPress={() => router.push('/settings')}
+      onPress={onPress}
       style={({ pressed }) => [
         {
-          padding: 8,
-          backgroundColor: pressed ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 20,
-          marginHorizontal: 4,
-          minWidth: 40,
-          minHeight: 40,
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          backgroundColor: pressed ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
           alignItems: 'center',
           justifyContent: 'center',
+          marginHorizontal: 6,
         },
       ]}
-      testID="settings-button"
+      testID={testID}
     >
-      <Ionicons name="settings" size={20} color="#FFFFFF" />
-    </Pressable>
-  );
-
-  const EnvironmentButton = () => (
-    <Pressable
-      onPress={() => router.push('/environment')}
-      style={({ pressed }) => [
-        {
-          padding: 8,
-          backgroundColor: pressed ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 20,
-          marginHorizontal: 4,
-          minWidth: 40,
-          minHeight: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      ]}
-      testID="environment-button"
-    >
-      <Ionicons name="eye" size={20} color="#FFFFFF" />
-    </Pressable>
-  );
-
-  const AnalyticsButton = () => (
-    <Pressable
-      onPress={() => router.push('/analytics')}
-      style={({ pressed }) => [
-        {
-          padding: 8,
-          backgroundColor: pressed ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 20,
-          marginHorizontal: 4,
-          minWidth: 40,
-          minHeight: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      ]}
-      testID="analytics-button"
-    >
-      <Ionicons name="analytics" size={20} color="#FFFFFF" />
-    </Pressable>
-  );
-
-  const ScannerButton = () => (
-    <Pressable
-      onPress={() => router.push('/scanner')}
-      style={({ pressed }) => [
-        {
-          padding: 8,
-          backgroundColor: pressed ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-          borderRadius: 20,
-          marginHorizontal: 4,
-          minWidth: 40,
-          minHeight: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      ]}
-      testID="scanner-button"
-    >
-      <Ionicons name="camera" size={20} color="#FFFFFF" />
+      <Ionicons name={iconName} size={20} color="#FFFFFF" />
     </Pressable>
   );
 
@@ -99,12 +38,14 @@ function RootLayoutNav() {
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.primary,
+          height: 100, // Slightly taller header for better spacing
         },
         headerTintColor: '#FFFFFF',
         headerTitleStyle: {
           fontWeight: 'bold',
-          fontSize: 18,
+          fontSize: 20,
         },
+        headerTitleAlign: 'center', // Ensure title stays centered
         headerShadowVisible: true,
       }}
     >
@@ -112,15 +53,27 @@ function RootLayoutNav() {
         name="index"
         options={{
           title: 'StudyFocus',
+          headerLeft: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="eye" 
+                onPress={() => router.push('/environment')}
+                testID="environment-button"
+              />
+            </View>
+          ),
           headerRight: () => (
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              marginRight: 10,
-            }}>
-              <EnvironmentButton />
-              <AnalyticsButton />
-              <SettingsButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="analytics" 
+                onPress={() => router.push('/analytics')}
+                testID="analytics-button"
+              />
+              <HeaderButton 
+                iconName="settings" 
+                onPress={() => router.push('/settings')}
+                testID="settings-button"
+              />
             </View>
           ),
         }}
@@ -130,14 +83,22 @@ function RootLayoutNav() {
         name="session"
         options={{
           title: 'Study Session',
+          headerLeft: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="eye" 
+                onPress={() => router.push('/environment')}
+                testID="environment-button"
+              />
+            </View>
+          ),
           headerRight: () => (
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              marginRight: 10,
-            }}>
-              <EnvironmentButton />
-              <SettingsButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="settings" 
+                onPress={() => router.push('/settings')}
+                testID="settings-button"
+              />
             </View>
           ),
         }}
@@ -147,14 +108,19 @@ function RootLayoutNav() {
         name="environment"
         options={{
           title: 'Environment Check',
+          headerLeft: () => null, // Clean left side
           headerRight: () => (
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              marginRight: 10,
-            }}>
-              <ScannerButton />
-              <SettingsButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="camera" 
+                onPress={() => router.push('/scanner')}
+                testID="scanner-button"
+              />
+              <HeaderButton 
+                iconName="settings" 
+                onPress={() => router.push('/settings')}
+                testID="settings-button"
+              />
             </View>
           ),
         }}
@@ -164,14 +130,19 @@ function RootLayoutNav() {
         name="analytics"
         options={{
           title: 'Study Analytics',
+          headerLeft: () => null, // Clean left side
           headerRight: () => (
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              marginRight: 10,
-            }}>
-              <EnvironmentButton />
-              <SettingsButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="eye" 
+                onPress={() => router.push('/environment')}
+                testID="environment-button"
+              />
+              <HeaderButton 
+                iconName="settings" 
+                onPress={() => router.push('/settings')}
+                testID="settings-button"
+              />
             </View>
           ),
         }}
@@ -181,14 +152,19 @@ function RootLayoutNav() {
         name="scanner"
         options={{
           title: 'Document Scanner',
+          headerLeft: () => null, // Clean left side
           headerRight: () => (
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              marginRight: 10,
-            }}>
-              <AnalyticsButton />
-              <SettingsButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <HeaderButton 
+                iconName="analytics" 
+                onPress={() => router.push('/analytics')}
+                testID="analytics-button"
+              />
+              <HeaderButton 
+                iconName="settings" 
+                onPress={() => router.push('/settings')}
+                testID="settings-button"
+              />
             </View>
           ),
         }}
@@ -198,7 +174,8 @@ function RootLayoutNav() {
         name="settings"
         options={{
           title: 'Settings',
-          headerRight: () => null, // No buttons on settings screen
+          headerLeft: () => null,
+          headerRight: () => null, // No buttons on settings screen for clean look
         }}
       />
     </Stack>

@@ -1,5 +1,5 @@
 // app/settings.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -39,6 +39,7 @@ export default function SettingsScreen() {
   const [tempDailyGoal, setTempDailyGoal] = useState(4); // hours
   const [storageInfo, setStorageInfo] = useState(null);
   const [subjects, setSubjects] = useState([]);
+  // Remove the isChangingPreference state - it's causing the animation issues
 
   useEffect(() => {
     loadStorageInfo();
@@ -69,14 +70,14 @@ export default function SettingsScreen() {
     }
   };
 
-  const handlePreferenceChange = async (key, value) => {
+  const handlePreferenceChange = useCallback(async (key, value) => {
     try {
       await savePreferences({ [key]: value });
     } catch (error) {
       console.error('Error saving preference:', error);
       Alert.alert('Error', 'Failed to save setting');
     }
-  };
+  }, [savePreferences]);
 
   const handleGoalSave = async () => {
     try {
@@ -145,27 +146,28 @@ export default function SettingsScreen() {
     return `${minutes}m`;
   };
 
-  const SettingRow = ({ 
+  const SettingRow = useCallback(({ 
     title, 
     subtitle, 
     onPress, 
     rightComponent, 
-    icon 
+    icon,
+    switchValue,
+    onSwitchChange,
+    disabled = false,
   }) => (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        {
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 16,
-          backgroundColor: pressed ? theme.colors.surface : theme.colors.card,
-          borderRadius: 12,
-          marginBottom: 8,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
-        },
-      ]}
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: theme.colors.card,
+        borderRadius: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        opacity: disabled ? 0.6 : 1,
+      }}
     >
       {icon && (
         <Ionicons 
@@ -176,7 +178,11 @@ export default function SettingsScreen() {
         />
       )}
       
-      <View style={{ flex: 1 }}>
+      <Pressable
+        onPress={onPress}
+        disabled={disabled || switchValue !== undefined}
+        style={{ flex: 1 }}
+      >
         <Text style={[globalStyles.text, { fontWeight: '500' }]}>
           {title}
         </Text>
@@ -185,17 +191,27 @@ export default function SettingsScreen() {
             {subtitle}
           </Text>
         )}
-      </View>
+      </Pressable>
 
-      {rightComponent || (
-        <Ionicons 
-          name="chevron-forward" 
-          size={20} 
-          color={theme.colors.textTertiary}
+      {switchValue !== undefined ? (
+        <Switch
+          trackColor={{ false: '#767577', true: theme.colors.primary }}
+          thumbColor={theme.colors.card}
+          ios_backgroundColor="#767577"
+          onValueChange={onSwitchChange}
+          value={switchValue}
         />
+      ) : (
+        rightComponent || (
+          <Ionicons 
+            name="chevron-forward" 
+            size={20} 
+            color={theme.colors.textTertiary}
+          />
+        )
       )}
-    </Pressable>
-  );
+    </View>
+  ), [theme.colors, globalStyles]);
 
   return (
     <SafeAreaView style={globalStyles.container}>
@@ -274,14 +290,8 @@ export default function SettingsScreen() {
             title="Auto-start Breaks"
             subtitle="Automatically start break when session ends"
             icon="play-circle"
-            rightComponent={
-              <Switch
-                value={preferences.autoStartBreaks || false}
-                onValueChange={(value) => handlePreferenceChange('autoStartBreaks', value)}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={theme.colors.card}
-              />
-            }
+            switchValue={Boolean(preferences.autoStartBreaks)}
+            onSwitchChange={(value) => handlePreferenceChange('autoStartBreaks', value)}
           />
         </View>
 
@@ -295,28 +305,16 @@ export default function SettingsScreen() {
             title="Environment Alerts"
             subtitle="Get notified about poor study conditions"
             icon="bulb"
-            rightComponent={
-              <Switch
-                value={preferences.enableEnvironmentAlerts || true}
-                onValueChange={(value) => handlePreferenceChange('enableEnvironmentAlerts', value)}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={theme.colors.card}
-              />
-            }
+            switchValue={preferences.enableEnvironmentAlerts !== false}
+            onSwitchChange={(value) => handlePreferenceChange('enableEnvironmentAlerts', value)}
           />
 
           <SettingRow
             title="Motion Detection"
             subtitle="Track movement during study sessions"
             icon="body"
-            rightComponent={
-              <Switch
-                value={preferences.enableMotionDetection || true}
-                onValueChange={(value) => handlePreferenceChange('enableMotionDetection', value)}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={theme.colors.card}
-              />
-            }
+            switchValue={preferences.enableMotionDetection !== false}
+            onSwitchChange={(value) => handlePreferenceChange('enableMotionDetection', value)}
           />
         </View>
 
@@ -330,28 +328,16 @@ export default function SettingsScreen() {
             title="Sound Alerts"
             subtitle="Play sounds for session start/end"
             icon="volume-high"
-            rightComponent={
-              <Switch
-                value={preferences.soundEnabled || true}
-                onValueChange={(value) => handlePreferenceChange('soundEnabled', value)}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={theme.colors.card}
-              />
-            }
+            switchValue={preferences.soundEnabled !== false}
+            onSwitchChange={(value) => handlePreferenceChange('soundEnabled', value)}
           />
 
           <SettingRow
             title="Vibration"
             subtitle="Vibrate for important notifications"
             icon="phone-portrait"
-            rightComponent={
-              <Switch
-                value={preferences.vibrationEnabled || true}
-                onValueChange={(value) => handlePreferenceChange('vibrationEnabled', value)}
-                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={theme.colors.card}
-              />
-            }
+            switchValue={preferences.vibrationEnabled !== false}
+            onSwitchChange={(value) => handlePreferenceChange('vibrationEnabled', value)}
           />
         </View>
 
