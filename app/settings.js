@@ -17,6 +17,7 @@ import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
 import SubjectPicker from '../src/components/SubjectPicker';
 import MetricCard from '../src/components/MetricCard';
+import SettingRow from '../src/components/SettingRow';
 import StudyStorage from '../src/storage/studyStorage';
 import DocumentStorage from '../src/storage/documentStorage';
 
@@ -146,72 +147,6 @@ export default function SettingsScreen() {
     return `${minutes}m`;
   };
 
-  const SettingRow = useCallback(({ 
-    title, 
-    subtitle, 
-    onPress, 
-    rightComponent, 
-    icon,
-    switchValue,
-    onSwitchChange,
-    disabled = false,
-  }) => (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: theme.colors.card,
-        borderRadius: 12,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        opacity: disabled ? 0.6 : 1,
-      }}
-    >
-      {icon && (
-        <Ionicons 
-          name={icon} 
-          size={24} 
-          color={theme.colors.primary}
-          style={{ marginRight: 12 }}
-        />
-      )}
-      
-      <Pressable
-        onPress={onPress}
-        disabled={disabled || switchValue !== undefined}
-        style={{ flex: 1 }}
-      >
-        <Text style={[globalStyles.text, { fontWeight: '500' }]}>
-          {title}
-        </Text>
-        {subtitle && (
-          <Text style={[globalStyles.textSecondary, { marginTop: 2 }]}>
-            {subtitle}
-          </Text>
-        )}
-      </Pressable>
-
-      {switchValue !== undefined ? (
-        <Switch
-          trackColor={{ false: '#767577', true: theme.colors.primary }}
-          thumbColor={theme.colors.card}
-          ios_backgroundColor="#767577"
-          onValueChange={onSwitchChange}
-          value={switchValue}
-        />
-      ) : (
-        rightComponent || (
-          <Ionicons 
-            name="chevron-forward" 
-            size={20} 
-            color={theme.colors.textTertiary}
-          />
-        )
-      )}
-    </View>
-  ), [theme.colors, globalStyles]);
 
   return (
     <SafeAreaView style={globalStyles.container}>
