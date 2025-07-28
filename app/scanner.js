@@ -20,6 +20,25 @@ import { useStudy } from '../src/context/StudyContext';
 import MetricCard from '../src/components/MetricCard';
 import FloatingActionButton from '../src/components/FloatingActionButton';
 import DocumentStorage from '../src/storage/documentStorage';
+import DocumentItem from '../src/components/DocumentItem';
+import DocumentFormModal from '../src/components/DocumentFormModal';
+
+// Helper to format file sizes
+export const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+// Helper to format dates for display
+export const formatDate = (dateString) =>
+  new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
 export default function ScannerScreen() {
   const { theme, globalStyles } = useTheme();
@@ -224,120 +243,6 @@ export default function ScannerScreen() {
     );
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
-  const renderDocumentItem = ({ item: document }) => (
-    <View style={[globalStyles.card, { marginBottom: 12 }]}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-        {/* Document Thumbnail */}
-        <View style={{
-          width: 60,
-          height: 80,
-          backgroundColor: theme.colors.surface,
-          borderRadius: 8,
-          marginRight: 12,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          {document.thumbnailPath ? (
-            <Image
-              source={{ uri: document.thumbnailPath }}
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: 8,
-              }}
-              resizeMode="cover"
-            />
-          ) : (
-            <Ionicons
-              name="document-text"
-              size={24}
-              color={theme.colors.textTertiary}
-            />
-          )}
-        </View>
-
-        {/* Document Info */}
-        <View style={{ flex: 1 }}>
-          <Text style={[globalStyles.text, { fontWeight: '600', marginBottom: 4 }]}>
-            {document.name}
-          </Text>
-          
-          {document.subject && (
-            <Text style={[globalStyles.textSecondary, { marginBottom: 4 }]}>
-              📚 {document.subject}
-            </Text>
-          )}
-          
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Text style={[globalStyles.textTertiary, { marginRight: 12 }]}>
-              {formatDate(document.createdAt)}
-            </Text>
-            {document.size && (
-              <Text style={globalStyles.textTertiary}>
-                {formatFileSize(document.size)}
-              </Text>
-            )}
-          </View>
-
-          {document.tags && document.tags.length > 0 && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
-              {document.tags.slice(0, 3).map((tag, index) => (
-                <View
-                  key={index}
-                  style={{
-                    backgroundColor: theme.colors.surface,
-                    paddingHorizontal: 8,
-                    paddingVertical: 2,
-                    borderRadius: 12,
-                    marginRight: 6,
-                    marginBottom: 4,
-                  }}
-                >
-                  <Text style={[globalStyles.textTertiary, { fontSize: 10 }]}>
-                    {tag}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Actions */}
-        <Pressable
-          onPress={() => deleteDocument(document.id)}
-          style={({ pressed }) => [
-            {
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: pressed ? theme.colors.error : `${theme.colors.error}20`,
-            },
-          ]}
-        >
-          <Ionicons 
-            name="trash" 
-            size={16} 
-            color={theme.colors.error}
-          />
-        </Pressable>
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={globalStyles.container}>
@@ -512,7 +417,14 @@ export default function ScannerScreen() {
           ) : (
             <FlatList
               data={documents.slice(0, 10)} // Show recent 10
-              renderItem={renderDocumentItem}
+              renderItem={({ item }) => (
+                <DocumentItem
+                  document={item}
+                  onDelete={deleteDocument}
+                  formatFileSize={formatFileSize}
+                  formatDate={formatDate}
+                />
+              )}
               keyExtractor={(item) => item.id}
               scrollEnabled={false}
             />
@@ -632,160 +544,21 @@ export default function ScannerScreen() {
         </View>
       </Modal>
 
-      {/* Document Form Modal */}
-      <Modal
+      <DocumentFormModal
         visible={showDocumentForm}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={resetDocumentForm}
-      >
-        <SafeAreaView style={[globalStyles.container, { padding: 16 }]}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={[globalStyles.spaceBetween, { marginBottom: 24 }]}>
-              <Text style={globalStyles.heading4}>
-                Save Document
-              </Text>
-              
-              <Pressable
-                onPress={resetDocumentForm}
-                style={({ pressed }) => [
-                  {
-                    padding: 8,
-                    borderRadius: 20,
-                    backgroundColor: pressed ? theme.colors.surface : 'transparent',
-                  },
-                ]}
-              >
-                <Ionicons 
-                  name="close" 
-                  size={24} 
-                  color={theme.colors.text}
-                />
-              </Pressable>
-            </View>
-
-            {/* Preview Image */}
-            {capturedImageUri && (
-              <View style={{ marginBottom: 24 }}>
-                <Text style={[globalStyles.text, { marginBottom: 8 }]}>
-                  Preview
-                </Text>
-                <Image
-                  source={{ uri: capturedImageUri }}
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    borderRadius: 8,
-                    backgroundColor: theme.colors.surface,
-                  }}
-                  resizeMode="contain"
-                />
-              </View>
-            )}
-
-            {/* Document Name */}
-            <View style={{ marginBottom: 16 }}>
-              <Text style={[globalStyles.text, { marginBottom: 8 }]}>
-                Document Name *
-              </Text>
-              <TextInput
-                style={globalStyles.input}
-                value={documentName}
-                onChangeText={setDocumentName}
-                placeholder="Enter document name..."
-                placeholderTextColor={theme.colors.placeholder}
-                maxLength={100}
-              />
-            </View>
-
-            {/* Subject */}
-            <View style={{ marginBottom: 16 }}>
-              <Text style={[globalStyles.text, { marginBottom: 8 }]}>
-                Subject
-              </Text>
-              <TextInput
-                style={globalStyles.input}
-                value={documentSubject}
-                onChangeText={setDocumentSubject}
-                placeholder="Enter subject..."
-                placeholderTextColor={theme.colors.placeholder}
-                maxLength={50}
-              />
-            </View>
-
-            {/* Tags */}
-            <View style={{ marginBottom: 16 }}>
-              <Text style={[globalStyles.text, { marginBottom: 8 }]}>
-                Tags (comma-separated)
-              </Text>
-              <TextInput
-                style={globalStyles.input}
-                value={documentTags}
-                onChangeText={setDocumentTags}
-                placeholder="homework, chapter1, important..."
-                placeholderTextColor={theme.colors.placeholder}
-                maxLength={200}
-              />
-            </View>
-
-            {/* Notes */}
-            <View style={{ marginBottom: 32 }}>
-              <Text style={[globalStyles.text, { marginBottom: 8 }]}>
-                Notes (Optional)
-              </Text>
-              <TextInput
-                style={[
-                  globalStyles.input,
-                  { 
-                    height: 80,
-                    textAlignVertical: 'top',
-                    paddingTop: 12,
-                  }
-                ]}
-                value={documentNotes}
-                onChangeText={setDocumentNotes}
-                placeholder="Add any notes about this document..."
-                placeholderTextColor={theme.colors.placeholder}
-                multiline
-                maxLength={500}
-              />
-            </View>
-
-            {/* Action Buttons */}
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <Pressable
-                onPress={resetDocumentForm}
-                style={({ pressed }) => [
-                  globalStyles.buttonSecondary,
-                  { flex: 1 },
-                  pressed && { opacity: 0.8 },
-                ]}
-              >
-                <Text style={globalStyles.buttonTextSecondary}>Cancel</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={saveDocument}
-                disabled={isSaving || !documentName.trim()}
-                style={({ pressed }) => [
-                  globalStyles.button,
-                  { flex: 1 },
-                  (isSaving || !documentName.trim()) && globalStyles.buttonDisabled,
-                  pressed && { opacity: 0.8 },
-                ]}
-              >
-                <Text style={[
-                  globalStyles.buttonText,
-                  (isSaving || !documentName.trim()) && globalStyles.buttonTextDisabled,
-                ]}>
-                  {isSaving ? 'Saving...' : 'Save Document'}
-                </Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+        onClose={resetDocumentForm}
+        onSave={saveDocument}
+        isSaving={isSaving}
+        capturedImageUri={capturedImageUri}
+        documentName={documentName}
+        setDocumentName={setDocumentName}
+        documentSubject={documentSubject}
+        setDocumentSubject={setDocumentSubject}
+        documentTags={documentTags}
+        setDocumentTags={setDocumentTags}
+        documentNotes={documentNotes}
+        setDocumentNotes={setDocumentNotes}
+      />
     </SafeAreaView>
   );
 }
