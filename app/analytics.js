@@ -4,15 +4,14 @@ import {
   View,
   Text,
   ScrollView,
-  Pressable,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
 import MetricCard from '../src/components/MetricCard';
 import ProgressChart from '../src/components/ProgressChart';
+import FloatingActionButton from '../src/components/FloatingActionButton';
 import StudyStorage from '../src/storage/studyStorage';
 
 export default function AnalyticsScreen() {
@@ -57,6 +56,21 @@ export default function AnalyticsScreen() {
       Alert.alert('Error', 'Failed to load analytics data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const exportData = await StudyStorage.exportAllData();
+      if (exportData) {
+        Alert.alert(
+          'Data Export',
+          'Your study data has been prepared for export. In a full app, this would save to your device or cloud storage.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to export data');
     }
   };
 
@@ -198,7 +212,7 @@ export default function AnalyticsScreen() {
     <SafeAreaView style={globalStyles.container}>
       <ScrollView 
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -209,41 +223,6 @@ export default function AnalyticsScreen() {
           <Text style={globalStyles.textSecondary}>
             Track your progress and identify patterns in your study habits
           </Text>
-        </View>
-
-        {/* Time Range Selector */}
-        <View style={{ 
-          flexDirection: 'row', 
-          backgroundColor: theme.colors.surface,
-          borderRadius: 8,
-          padding: 4,
-          marginBottom: 24,
-        }}>
-          {['day', 'week', 'month'].map((range) => (
-            <Pressable
-              key={range}
-              onPress={() => setTimeRange(range)}
-              style={({ pressed }) => [
-                {
-                  flex: 1,
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                  borderRadius: 6,
-                  alignItems: 'center',
-                  backgroundColor: timeRange === range ? theme.colors.primary : 'transparent',
-                },
-                pressed && { opacity: 0.8 },
-              ]}
-            >
-              <Text style={{
-                color: timeRange === range ? '#FFFFFF' : theme.colors.textSecondary,
-                fontWeight: timeRange === range ? '600' : '400',
-                textTransform: 'capitalize',
-              }}>
-                {range}
-              </Text>
-            </Pressable>
-          ))}
         </View>
 
         {/* Key Metrics Overview */}
@@ -473,40 +452,16 @@ export default function AnalyticsScreen() {
             )}
           </View>
         </View>
-
-        {/* Export Data Option */}
-        <Pressable
-          onPress={async () => {
-            try {
-              const exportData = await StudyStorage.exportAllData();
-              if (exportData) {
-                Alert.alert(
-                  'Data Export',
-                  'Your study data has been prepared for export. In a full app, this would save to your device or cloud storage.',
-                  [{ text: 'OK' }]
-                );
-              }
-            } catch (error) {
-              Alert.alert('Error', 'Failed to export data');
-            }
-          }}
-          style={({ pressed }) => [
-            globalStyles.buttonSecondary,
-            { marginBottom: 24 },
-            pressed && { opacity: 0.8 },
-          ]}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons 
-              name="download" 
-              size={20} 
-              color={theme.colors.primary}
-              style={{ marginRight: 8 }}
-            />
-            <Text style={globalStyles.buttonTextSecondary}>Export Study Data</Text>
-          </View>
-        </Pressable>
       </ScrollView>
+
+      {/* Export Data FAB */}
+      <FloatingActionButton
+        onPress={handleExportData}
+        icon="download"
+        position="bottom-right"
+        size="normal"
+        color={theme.colors.info}
+      />
     </SafeAreaView>
   );
 }

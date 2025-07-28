@@ -8,32 +8,36 @@ export default function FloatingActionButton({
   onPress,
   icon = 'add',
   label = null,
-  size = 'normal', // 'normal' | 'small' | 'large'
+  size = 'normal', // 'small' | 'normal' | 'large'
   position = 'bottom-right', // 'bottom-right' | 'bottom-left' | 'bottom-center'
   style = {},
   disabled = false,
+  color = null, // Custom color override
 }) {
   const { theme } = useTheme();
 
-  // Size configurations
+  // Size configurations following Material Design FAB specs
   const sizeConfig = {
     small: {
       width: 40,
       height: 40,
-      iconSize: 20,
+      iconSize: 18,
       fontSize: 12,
+      elevation: 6,
     },
     normal: {
       width: 56,
       height: 56,
       iconSize: 24,
       fontSize: 14,
+      elevation: 6,
     },
     large: {
-      width: 64,
-      height: 64,
-      iconSize: 28,
-      fontSize: 16,
+      width: 96, // Extended FAB width for label
+      height: 56,
+      iconSize: 24,
+      fontSize: 14,
+      elevation: 6,
     },
   };
 
@@ -53,11 +57,27 @@ export default function FloatingActionButton({
       position: 'absolute',
       bottom: 16,
       alignSelf: 'center',
+      left: 0,
+      right: 0,
+      alignItems: 'center',
     },
   };
 
   const currentSize = sizeConfig[size];
   const currentPosition = positionConfig[position];
+  const fabColor = color || theme.colors.primary;
+
+  // Material Design FAB elevation shadow
+  const fabShadow = {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: currentSize.elevation / 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: currentSize.elevation * 0.8,
+    elevation: currentSize.elevation,
+  };
 
   return (
     <View style={[currentPosition, style]}>
@@ -70,20 +90,15 @@ export default function FloatingActionButton({
             {
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: disabled ? theme.colors.border : theme.colors.primary,
+              justifyContent: 'center',
+              backgroundColor: disabled ? theme.colors.border : fabColor,
               borderRadius: 28,
               paddingHorizontal: 16,
-              paddingVertical: 12,
+              paddingVertical: 16,
               minHeight: currentSize.height,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
-              opacity: pressed ? 0.8 : 1,
+              minWidth: currentSize.width,
+              ...fabShadow,
+              opacity: pressed ? 0.9 : 1,
               transform: pressed ? [{ scale: 0.95 }] : [{ scale: 1 }],
             },
           ]}
@@ -92,7 +107,7 @@ export default function FloatingActionButton({
             name={icon}
             size={currentSize.iconSize}
             color={disabled ? theme.colors.textTertiary : '#FFFFFF'}
-            style={{ marginRight: 8 }}
+            style={label ? { marginRight: 8 } : {}}
           />
           <Text
             style={{
@@ -116,18 +131,11 @@ export default function FloatingActionButton({
               width: currentSize.width,
               height: currentSize.height,
               borderRadius: currentSize.width / 2,
-              backgroundColor: disabled ? theme.colors.border : theme.colors.primary,
+              backgroundColor: disabled ? theme.colors.border : fabColor,
               alignItems: 'center',
               justifyContent: 'center',
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
-              opacity: pressed ? 0.8 : 1,
+              ...fabShadow,
+              opacity: pressed ? 0.9 : 1,
               transform: pressed ? [{ scale: 0.95 }] : [{ scale: 1 }],
             },
           ]}

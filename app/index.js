@@ -1,7 +1,7 @@
 // app/index.js
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
+import FloatingActionButton from '../src/components/FloatingActionButton';
+import SubjectPicker from '../src/components/SubjectPicker';
 
 export default function DashboardScreen() {
   const { theme, globalStyles } = useTheme();
@@ -57,18 +59,15 @@ export default function DashboardScreen() {
     }
   };
 
-  const handleStartSession = () => {
-    if (!currentSubject) {
-      Alert.alert(
-        'Select Subject',
-        'Please select a subject before starting your study session.',
-        [
-          { text: 'OK', onPress: () => router.push('/settings') },
-        ]
-      );
-      return;
-    }
+  const [showSubjectPicker, setShowSubjectPicker] = useState(false);
 
+  const handleStartSession = () => {
+    setShowSubjectPicker(true);
+  };
+
+  const handleSubjectSelected = (subject) => {
+    setShowSubjectPicker(false);
+    // Subject is automatically set in context by SubjectPicker
     router.push('/session');
   };
 
@@ -80,7 +79,7 @@ export default function DashboardScreen() {
     <SafeAreaView style={globalStyles.container}>
       <ScrollView 
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Welcome Section */}
@@ -91,49 +90,6 @@ export default function DashboardScreen() {
           <Text style={globalStyles.textSecondary}>
             Ready to focus and achieve your study goals?
           </Text>
-        </View>
-
-        {/* Quick Action FAB */}
-        <View style={{ alignItems: 'center', marginBottom: 24 }}>
-          <Pressable
-            onPress={handleStartSession}
-            style={({ pressed }) => [
-              {
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: theme.colors.focus,
-                borderRadius: 28,
-                paddingHorizontal: 20,
-                paddingVertical: 14,
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 3,
-                opacity: pressed ? 0.8 : 1,
-                transform: pressed ? [{ scale: 0.95 }] : [{ scale: 1 }],
-              },
-            ]}
-          >
-            <Ionicons
-              name="play"
-              size={24}
-              color="#FFFFFF"
-              style={{ marginRight: 10 }}
-            />
-            <Text
-              style={{
-                color: '#FFFFFF',
-                fontSize: 16,
-                fontWeight: '600',
-              }}
-            >
-              Start Study Session
-            </Text>
-          </Pressable>
         </View>
 
         {/* Current Environment Status */}
@@ -334,6 +290,24 @@ export default function DashboardScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Floating Action Button for Start Session */}
+      <FloatingActionButton
+        onPress={handleStartSession}
+        icon="play"
+        label="Start Study Session"
+        position="bottom-center"
+        size="large"
+      />
+
+      {/* Subject Picker Modal */}
+      <SubjectPicker
+        visible={showSubjectPicker}
+        onClose={() => setShowSubjectPicker(false)}
+        onSubjectSelect={handleSubjectSelected}
+        selectedSubject={currentSubject}
+        mode="select"
+      />
     </SafeAreaView>
   );
 }

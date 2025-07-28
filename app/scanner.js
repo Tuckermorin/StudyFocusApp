@@ -18,6 +18,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useTheme } from '../src/context/ThemeContext';
 import { useStudy } from '../src/context/StudyContext';
 import MetricCard from '../src/components/MetricCard';
+import FloatingActionButton from '../src/components/FloatingActionButton';
 import DocumentStorage from '../src/storage/documentStorage';
 
 export default function ScannerScreen() {
@@ -342,7 +343,7 @@ export default function ScannerScreen() {
     <SafeAreaView style={globalStyles.container}>
       <ScrollView 
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -362,25 +363,6 @@ export default function ScannerScreen() {
           marginBottom: 24,
         }}>
           <Pressable
-            onPress={handleStartScan}
-            style={({ pressed }) => [
-              globalStyles.button,
-              { flex: 1 },
-              pressed && { opacity: 0.8 },
-            ]}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons 
-                name="camera" 
-                size={20} 
-                color="#FFFFFF"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={globalStyles.buttonText}>Scan Document</Text>
-            </View>
-          </Pressable>
-
-          <Pressable
             onPress={handlePickDocument}
             style={({ pressed }) => [
               globalStyles.buttonSecondary,
@@ -395,7 +377,7 @@ export default function ScannerScreen() {
                 color={theme.colors.primary}
                 style={{ marginRight: 8 }}
               />
-              <Text style={globalStyles.buttonTextSecondary}>Import</Text>
+              <Text style={globalStyles.buttonTextSecondary}>Import File</Text>
             </View>
           </Pressable>
         </View>
@@ -556,6 +538,15 @@ export default function ScannerScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Quick Scan FAB */}
+      <FloatingActionButton
+        onPress={handleStartScan}
+        icon="camera"
+        position="bottom-right"
+        size="normal"
+        color={theme.colors.success}
+      />
 
       {/* Camera Modal */}
       <Modal

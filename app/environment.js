@@ -17,6 +17,7 @@ import { useStudy } from '../src/context/StudyContext';
 import EnvironmentCard from '../src/components/EnvironmentCard';
 import MetricCard from '../src/components/MetricCard';
 import ProgressChart from '../src/components/ProgressChart';
+import FloatingActionButton from '../src/components/FloatingActionButton';
 import EnvironmentService from '../src/services/environmentService';
 import SensorService from '../src/services/sensorService';
 
@@ -50,7 +51,37 @@ export default function EnvironmentScreen() {
     setTrends(trendData);
   };
 
-  const handleTakePhoto = async () => {
+  const handleQuickAnalysis = () => {
+    setIsAnalyzing(true);
+    
+    // Simulate quick environment analysis
+    setTimeout(() => {
+      // Force a sensor update and environment analysis
+      const currentData = SensorService.getCurrentData();
+      const analysis = EnvironmentService.analyzeEnvironment(currentData);
+      
+      updateEnvironment({
+        lightLevel: currentData.lightLevel,
+        motionLevel: currentData.motionLevel,
+        status: analysis.status,
+        recommendations: analysis.recommendations,
+        score: analysis.score,
+        lastChecked: Date.now(),
+      });
+      
+      // Refresh environment data
+      loadEnvironmentData();
+      setIsAnalyzing(false);
+      
+      Alert.alert(
+        'Environment Analysis Complete',
+        `Current environment score: ${analysis.score}/100\nStatus: ${analysis.status}`,
+        [{ text: 'OK' }]
+      );
+    }, 2000);
+  };
+
+  const handleTakePhoto = () => {
     if (!permission?.granted) {
       Alert.alert(
         'Camera Permission Required',
@@ -134,7 +165,7 @@ export default function EnvironmentScreen() {
     <SafeAreaView style={globalStyles.container}>
       <ScrollView 
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -164,7 +195,7 @@ export default function EnvironmentScreen() {
           <Pressable
             onPress={handleTakePhoto}
             style={({ pressed }) => [
-              globalStyles.button,
+              globalStyles.buttonSecondary,
               { flex: 1 },
               pressed && { opacity: 0.8 },
             ]}
@@ -173,10 +204,10 @@ export default function EnvironmentScreen() {
               <Ionicons 
                 name="camera" 
                 size={20} 
-                color="#FFFFFF"
+                color={theme.colors.primary}
                 style={{ marginRight: 8 }}
               />
-              <Text style={globalStyles.buttonText}>Analyze with Camera</Text>
+              <Text style={globalStyles.buttonTextSecondary}>Analyze with Camera</Text>
             </View>
           </Pressable>
 
@@ -411,6 +442,16 @@ export default function EnvironmentScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Quick Environment Analysis FAB */}
+      <FloatingActionButton
+        onPress={handleQuickAnalysis}
+        icon={isAnalyzing ? "hourglass" : "flash"}
+        position="bottom-right"
+        size="normal"
+        color={theme.colors.warning}
+        disabled={isAnalyzing}
+      />
 
       {/* Camera Modal */}
       <Modal
